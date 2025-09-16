@@ -6,8 +6,8 @@
  * Strips spaces from both the front and back of a string,
  * leaving any internal spaces alone.
  */
-char const *strip(char const *str) {
-  int size = strlen(str);
+char *strip(char const *str) {
+  int size = (int)strlen(str);
 
   // This counts the number of leading and trailing spaces
   // so we can figure out how big the result array should be.
@@ -28,12 +28,14 @@ char const *strip(char const *str) {
   // consisted of nothing but spaces, so we'll return the
   // empty string.
   if (num_spaces >= size) {
-    return "";
+    char* empty_string = (char*)calloc(1, sizeof(char));
+    return empty_string;
   }
 
   // Allocate a slot for all the "saved" characters
   // plus one extra for the null terminator.
-  char* result = (char*) calloc(size-num_spaces+1, sizeof(char));
+  int out_length = (last_non_space - first_non_space + 1);
+  char *result = (char*)calloc((size_t)out_length + 1, sizeof(char));
 
   // Copy in the "saved" characters.
   int i;
@@ -41,7 +43,7 @@ char const *strip(char const *str) {
     result[i-first_non_space] = str[i];
   }
   // Place the null terminator at the end of the result string.
-  result[i-first_non_space] = '\0';
+  result[out_length] = '\0';
 
   return result;
 }
@@ -53,13 +55,15 @@ char const *strip(char const *str) {
 int is_clean(char const *str) {
   // We check if it's clean by calling strip and seeing if the
   // result is the same as the original string.
-  char const *cleaned = strip(str);
+  char *cleaned = strip(str);
 
   // strcmp compares two strings, returning a negative value if
   // the first is less than the second (in alphabetical order),
   // 0 if they're equal, and a positive value if the first is
   // greater than the second.
-  int result = strcmp(str, cleaned);
+  int result = (strcmp(str, cleaned) == 0);
 
-  return result == 0;
+  free(cleaned);
+
+  return result ? 1 : 0;
 }
